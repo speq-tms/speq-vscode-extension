@@ -1,0 +1,97 @@
+{
+  "name": "speq-vscode-extension",
+  "displayName": "speq",
+  "description": "VS Code extension for speq YAML-based tests",
+  "version": "0.1.0",
+  "publisher": "stepankaziatko",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Testing",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "speq.refreshSuites",
+        "title": "speq: Refresh Suites"
+      },
+      {
+        "command": "speq.validateWorkspace",
+        "title": "speq: Validate Workspace"
+      },
+      {
+        "command": "speq.runSuite",
+        "title": "speq: Run Suite"
+      },
+      {
+        "command": "speq.runTest",
+        "title": "speq: Run Test"
+      },
+      {
+        "command": "speq.previewManifest",
+        "title": "speq: Preview Manifest"
+      },
+      {
+        "command": "speq.previewEnvironment",
+        "title": "speq: Preview Environment"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "speq",
+          "title": "speq",
+          "icon": "resources/speq.svg"
+        }
+      ]
+    },
+    "views": {
+      "speq": [
+        {
+          "id": "speqSuitesExplorer",
+          "name": "Suites"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "speq.refreshSuites",
+          "when": "view == speqSuitesExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "speq.validateWorkspace",
+          "when": "view == speqSuitesExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "speq.runSuite",
+          "when": "view == speqSuitesExplorer && viewItem == speqSuite",
+          "group": "inline"
+        },
+        {
+          "command": "speq.runTest",
+          "when": "view == speqSuitesExplorer && viewItem == speqTest",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "check": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.10",
+    "@types/vscode": "^1.88.0",
+    "typescript": "^5.6.3"
+  }
+}

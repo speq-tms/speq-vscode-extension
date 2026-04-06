@@ -15,7 +15,7 @@ Open-source MVP focuses on:
 
 Extension is an interface layer and must not contain a separate runner implementation.
 
-## Planned structure
+## Structure
 
 ```text
 src/
@@ -23,10 +23,39 @@ src/
   tree/
   preview/
   diagnostics/
-syntaxes/
 docs/
 ```
 
+## Requirements
+
+- `speq` CLI installed and available in `PATH`.
+- Workspace follows `in-repo` (`.speq/`) or `test-repo` layout.
+
+## Implemented MVP features
+
+- Suites explorer for YAML tests in `suites/`.
+- Diagnostics from `speq validate --speq-root <root> --format json`.
+- Run actions via CLI:
+  - run suite (`speq run --suite ...`)
+  - run test (`speq run --test ...`)
+- Quick preview for:
+  - `manifest.yaml`
+  - `environments/*.yaml`
+
+## Commands
+
+- `speq: Refresh Suites`
+- `speq: Validate Workspace`
+- `speq: Run Suite`
+- `speq: Run Test`
+- `speq: Preview Manifest`
+- `speq: Preview Environment`
+
+## Local development
+
+- Install dependencies: `npm install`
+- Compile: `npm run compile`
+
 ## Status
 
-Bootstrap complete. Ready for MVP implementation.
+OSS MVP extension is implemented as interface-only layer over `speq-cli`.

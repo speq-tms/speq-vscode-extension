@@ -5,11 +5,15 @@ import { SpeqRootInfo } from "../types";
 
 export interface SuiteTreeItem extends vscode.TreeItem {
   fullPath: string;
-  kind: "suite" | "test";
+  kind: "suite" | "test" | "suiteInit";
 }
 
 function isYaml(fileName: string): boolean {
   return fileName.endsWith(".yaml") || fileName.endsWith(".yml");
+}
+
+function isSuiteInit(fileName: string): boolean {
+  return fileName === "init.yaml" || fileName === "init.yml";
 }
 
 function buildItems(dirPath: string): SuiteTreeItem[] {
@@ -34,8 +38,15 @@ function buildItems(dirPath: string): SuiteTreeItem[] {
     if (entry.isFile() && isYaml(entry.name)) {
       const testItem = new vscode.TreeItem(entry.name, vscode.TreeItemCollapsibleState.None) as SuiteTreeItem;
       testItem.fullPath = fullPath;
-      testItem.kind = "test";
-      testItem.contextValue = "speqTest";
+      if (isSuiteInit(entry.name)) {
+        testItem.kind = "suiteInit";
+        testItem.contextValue = "speqSuiteInit";
+        testItem.iconPath = new vscode.ThemeIcon("tools");
+        testItem.description = "suite init";
+      } else {
+        testItem.kind = "test";
+        testItem.contextValue = "speqTest";
+      }
       testItem.command = {
         command: "vscode.open",
         title: "Open test",

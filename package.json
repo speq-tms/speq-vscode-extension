@@ -12,12 +12,17 @@
     "Testing",
     "Other"
   ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onCommand:speq.validateWorkspace",
+    "onView:speqStudioHome"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "speq.refreshSuites",
-        "title": "speq: Refresh Suites"
+        "command": "speq.refreshStudioHome",
+        "title": "speq: Refresh Studio Home"
       },
       {
         "command": "speq.validateWorkspace",
@@ -38,6 +43,50 @@
       {
         "command": "speq.previewEnvironment",
         "title": "speq: Preview Environment"
+      },
+      {
+        "command": "speq.selectRoot",
+        "title": "speq: Select Active Root"
+      },
+      {
+        "command": "speq.runTestAtPath",
+        "title": "speq: Run Test (Current File)"
+      },
+      {
+        "command": "speq.runSuiteAtPath",
+        "title": "speq: Run Suite (Current File)"
+      },
+      {
+        "command": "speq.openTestFlowAtPath",
+        "title": "speq: Open Test Flow"
+      },
+      {
+        "command": "speq.allureServe",
+        "title": "speq: Allure Serve"
+      },
+      {
+        "command": "speq.generateReport",
+        "title": "speq: Generate Report"
+      },
+      {
+        "command": "speq.generateSummaryReport",
+        "title": "speq: Generate Summary Report"
+      },
+      {
+        "command": "speq.reportAll",
+        "title": "speq: Report All"
+      },
+      {
+        "command": "speq.openSummaryReport",
+        "title": "speq: Open Summary Report"
+      },
+      {
+        "command": "speq.openAllureDirectory",
+        "title": "speq: Open Allure Directory"
+      },
+      {
+        "command": "speq.selectActiveEnv",
+        "title": "speq: Select Active Environment"
       }
     ],
     "viewsContainers": {
@@ -52,46 +101,89 @@
     "views": {
       "speq": [
         {
-          "id": "speqSuitesExplorer",
-          "name": "Suites"
+          "id": "speqStudioHome",
+          "name": "Studio Home",
+          "type": "webview"
         }
       ]
     },
     "menus": {
       "view/title": [
         {
-          "command": "speq.refreshSuites",
-          "when": "view == speqSuitesExplorer",
+          "command": "speq.refreshStudioHome",
+          "when": "view == speqStudioHome",
+          "group": "navigation"
+        },
+        {
+          "command": "speq.selectRoot",
+          "when": "view == speqStudioHome",
+          "group": "navigation"
+        },
+        {
+          "command": "speq.selectActiveEnv",
+          "when": "view == speqStudioHome",
           "group": "navigation"
         },
         {
           "command": "speq.validateWorkspace",
-          "when": "view == speqSuitesExplorer",
+          "when": "view == speqStudioHome",
           "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "speq.runSuite",
-          "when": "view == speqSuitesExplorer && viewItem == speqSuite",
-          "group": "inline"
         },
         {
-          "command": "speq.runTest",
-          "when": "view == speqSuitesExplorer && viewItem == speqTest",
-          "group": "inline"
+          "command": "speq.openSummaryReport",
+          "when": "view == speqStudioHome",
+          "group": "navigation"
         }
       ]
+    },
+    "configuration": {
+      "title": "speq",
+      "properties": {
+        "speq.cli.mode": {
+          "type": "string",
+          "enum": [
+            "binary",
+            "cargo"
+          ],
+          "default": "binary",
+          "description": "How extension executes CLI commands: installed binary or local cargo run."
+        },
+        "speq.cli.binaryPath": {
+          "type": "string",
+          "default": "speq",
+          "description": "Binary name/path used when speq.cli.mode = binary."
+        },
+        "speq.cli.cargoProjectPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to speq-cli Cargo project when speq.cli.mode = cargo. Relative path resolves from opened workspace folder."
+        },
+        "speq.cli.cargoRunArgs": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "Extra args passed to cargo run before '--' (for example ['--release'])."
+        }
+      }
     }
   },
   "scripts": {
-    "compile": "tsc -p .",
+    "compile": "tsc -p . && npm run compile:webviews",
+    "compile:webviews": "esbuild src/webviews/studioHome/main.tsx --bundle --format=iife --platform=browser --outfile=dist/webviews/studioHome.js",
     "watch": "tsc -watch -p .",
     "check": "npm run compile"
   },
   "devDependencies": {
     "@types/node": "^20.16.10",
     "@types/vscode": "^1.88.0",
+    "esbuild": "^0.28.0",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "yaml": "^2.8.3"
   }
 }

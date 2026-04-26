@@ -1,0 +1,238 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://speq.dev/schemas/test.schema.json",
+  "title": "SPEQ Test Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique test identifier."
+    },
+    "title": {
+      "type": "string",
+      "description": "Human-readable test title."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional tags used for filtering."
+    },
+    "variables": {
+      "type": "object",
+      "description": "Per-test variables available in templates.",
+      "additionalProperties": true
+    },
+    "imports": {
+      "type": "array",
+      "description": "Imported modules for use.action syntax.",
+      "items": {
+        "$ref": "#/definitions/importSpec"
+      }
+    },
+    "setup": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/step"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/step"
+      }
+    },
+    "cleanup": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/step"
+      }
+    }
+  },
+  "definitions": {
+    "importSpec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "module"
+      ],
+      "properties": {
+        "module": {
+          "type": "string",
+          "description": "Module path under modulesDir."
+        },
+        "alias": {
+          "type": "string",
+          "description": "Optional alias for action calls."
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "api",
+            "use"
+          ],
+          "description": "Step type: direct API call or reusable action."
+        },
+        "name": {
+          "type": "string"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "HEAD",
+            "OPTIONS"
+          ]
+        },
+        "url": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "body": {},
+        "ref": {
+          "type": "string",
+          "description": "Reusable yaml file for use step."
+        },
+        "action": {
+          "type": "string",
+          "description": "Imported module action in <alias>.<action> format."
+        },
+        "properties": {
+          "type": "object",
+          "description": "Parameters passed to use.action.",
+          "additionalProperties": true
+        },
+        "assert": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/assertion"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "api"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "method",
+              "url"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "use"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "ref"
+                ]
+              },
+              {
+                "required": [
+                  "action"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "status",
+            "json",
+            "contains",
+            "notcontains",
+            "exists",
+            "regex",
+            "schema"
+          ],
+          "description": "Assertion type, includes schema validation."
+        },
+        "path": {
+          "type": "string"
+        },
+        "expected": {},
+        "value": {},
+        "ref": {
+          "type": "string",
+          "description": "Schema file path relative to schemasDir."
+        },
+        "inline": {
+          "description": "Inline JSON Schema document."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "schema"
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "ref"
+                ]
+              },
+              {
+                "required": [
+                  "inline"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

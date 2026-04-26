@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://speq.dev/schemas/module.schema.json",
+  "title": "SPEQ Module Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "variables": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "actions": {
+      "type": "object",
+      "description": "Module action contract supports detailed and legacy formats.",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Za-z0-9_.-]+$": {
+          "oneOf": [
+            {
+              "type": "array",
+              "description": "Legacy action format as a plain list of steps.",
+              "items": {
+                "$ref": "speq-test.schema.json#/definitions/step"
+              }
+            },
+            {
+              "type": "object",
+              "description": "Detailed action format with properties + steps.",
+              "additionalProperties": false,
+              "required": [
+                "steps"
+              ],
+              "properties": {
+                "properties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "speq-test.schema.json#/definitions/step"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

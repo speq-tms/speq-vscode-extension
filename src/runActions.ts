@@ -28,15 +28,51 @@ function relativeToRoot(targetPath: string, root: SpeqRootInfo): string {
   return path.relative(root.speqRoot, targetPath);
 }
 
-export async function runSuite(root: SpeqRootInfo, output: vscode.OutputChannel, suitePath?: string): Promise<void> {
-  let selectedSuite = suitePath;
-  if (!selectedSuite) {
-    selectedSuite = root.suitesDir;
+function withEnv(args: string[], envName?: string): string[] {
+  if (!envName || !envName.trim()) {
+    return args;
   }
+  return [...args, "--env", envName.trim()];
+}
 
-  const args = ["run", "--speq-root", root.speqRoot, "--suite", relativeToRoot(selectedSuite, root)];
+export interface RunCustomOptions {
+  envName?: string;
+  report?: "all" | "summary" | "allure";
+  tags?: string[];
+  suitePath?: string;
+  testPath?: string;
+}
+
+export interface RunExecutionResult {
+  command: string;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  durationMs: number;
+}
+
+function appendOptionalRunOptions(args: string[], options: RunCustomOptions): string[] {
+  const next = [...args];
+  if (options.report) {
+    next.push("--report", options.report);
+  }
+  if (options.tags && options.tags.length > 0) {
+    next.push("--tags", options.tags.join(","));
+  }
+  return next;
+}
+
+async function executeRun(
+  root: SpeqRootInfo,
+  output: vscode.OutputChannel,
+  args: string[],
+  successMessage: string,
+  failurePrefix: string
+): Promise<RunExecutionResult> {
+  const startedAt = Date.now();
   const result = await runSpeq(args, root.workspaceFolder.uri.fsPath);
-  output.appendLine(`$ speq ${args.join(" ")}`);
+  const durationMs = Date.now() - startedAt;
+  output.appendLine(`$ ${result.command}`);
   if (result.stdout.trim()) {
     output.appendLine(result.stdout.trim());
   }
@@ -45,15 +81,42 @@ export async function runSuite(root: SpeqRootInfo, output: vscode.OutputChannel,
   }
 
   if (result.exitCode === 0) {
-    vscode.window.showInformationMessage("speq suite run completed.");
-    return;
+    vscode.window.showInformationMessage(successMessage);
+  } else {
+    const details = result.stderr || result.stdout || "Unknown error";
+    vscode.window.showErrorMessage(`${failurePrefix}: ${details}`);
   }
 
-  const details = result.stderr || result.stdout || "Unknown error";
-  vscode.window.showErrorMessage(`speq suite run failed: ${details}`);
+  return {
+    command: result.command,
+    exitCode: result.exitCode,
+    stdout: result.stdout,
+    stderr: result.stderr,
+    durationMs
+  };
 }
 
-export async function runTest(root: SpeqRootInfo, output: vscode.OutputChannel, testPath?: string): Promise<void> {
+export async function runSuite(
+  root: SpeqRootInfo,
+  output: vscode.OutputChannel,
+  suitePath?: string,
+  envName?: string
+): Promise<RunExecutionResult> {
+  let selectedSuite = suitePath;
+  if (!selectedSuite) {
+    selectedSuite = root.suitesDir;
+  }
+
+  const args = withEnv(["run", "--speq-root", root.speqRoot, "--suite", relativeToRoot(selectedSuite, root)], envName);
+  return executeRun(root, output, args, "speq suite run completed.", "speq suite run failed");
+}
+
+export async function runTest(
+  root: SpeqRootInfo,
+  output: vscode.OutputChannel,
+  testPath?: string,
+  envName?: string
+): Promise<RunExecutionResult | undefined> {
   let selectedTest = testPath;
   if (!selectedTest) {
     const tests: string[] = [];
@@ -69,21 +132,20 @@ export async function runTest(root: SpeqRootInfo, output: vscode.OutputChannel, 
     selectedTest = path.join(root.speqRoot, picked);
   }
 
-  const args = ["run", "--speq-root", root.speqRoot, "--test", relativeToRoot(selectedTest, root)];
-  const result = await runSpeq(args, root.workspaceFolder.uri.fsPath);
-  output.appendLine(`$ speq ${args.join(" ")}`);
-  if (result.stdout.trim()) {
-    output.appendLine(result.stdout.trim());
-  }
-  if (result.stderr.trim()) {
-    output.appendLine(result.stderr.trim());
+  const args = withEnv(["run", "--speq-root", root.speqRoot, "--test", relativeToRoot(selectedTest, root)], envName);
+  return executeRun(root, output, args, "speq test run completed.", "speq test run failed");
+}
+
+export async function runCustom(root: SpeqRootInfo, output: vscode.OutputChannel, options: RunCustomOptions): Promise<RunExecutionResult> {
+  const args: string[] = ["run", "--speq-root", root.speqRoot];
+
+  if (options.testPath) {
+    args.push("--test", relativeToRoot(options.testPath, root));
+  } else if (options.suitePath) {
+    args.push("--suite", relativeToRoot(options.suitePath, root));
   }
 
-  if (result.exitCode === 0) {
-    vscode.window.showInformationMessage("speq test run completed.");
-    return;
-  }
-
-  const details = result.stderr || result.stdout || "Unknown error";
-  vscode.window.showErrorMessage(`speq test run failed: ${details}`);
+  const withEnvArgs = withEnv(args, options.envName);
+  const finalArgs = appendOptionalRunOptions(withEnvArgs, options);
+  return executeRun(root, output, finalArgs, "speq run completed.", "speq run failed");
 }

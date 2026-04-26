@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://speq.dev/schemas/suite-init.schema.json",
+  "title": "SPEQ Suite Init Spec",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "suite"
+  ],
+  "properties": {
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Suite-level hooks and shared context.",
+      "properties": {
+        "variables": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "$ref": "speq-test.schema.json#/definitions/importSpec"
+          }
+        },
+        "beforeAll": {
+          "type": "array",
+          "items": {
+            "$ref": "speq-test.schema.json#/definitions/step"
+          }
+        },
+        "beforeEach": {
+          "type": "array",
+          "items": {
+            "$ref": "speq-test.schema.json#/definitions/step"
+          }
+        },
+        "afterEach": {
+          "type": "array",
+          "items": {
+            "$ref": "speq-test.schema.json#/definitions/step"
+          }
+        },
+        "afterAll": {
+          "type": "array",
+          "items": {
+            "$ref": "speq-test.schema.json#/definitions/step"
+          }
+        }
+      }
+    }
+  }
+}

@@ -126,6 +126,10 @@ In this mode extension will run commands like:
 - Install dependencies: `npm install`
 - Compile: `npm run compile`
 
+## Release
+
+- Release instructions (manual + GitHub automation): `docs/EXTENSION_RELEASE_GUIDE.md`
+
 ## Status
 
 OSS MVP extension is implemented as interface-only layer over `speq-cli`.

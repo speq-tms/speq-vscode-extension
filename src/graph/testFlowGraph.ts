@@ -13,6 +13,7 @@ interface ImportSpec {
 interface AssertionSpec {
   type?: string;
   ref?: string;
+  [key: string]: unknown;
 }
 
 interface StepSpec {
@@ -65,6 +66,7 @@ export interface FlowStepNode {
   stepType: string;
   sourcePath: string;
   sourceKind: StepSourceKind;
+  assertions: AssertionSpec[];
   schemaRefs: FlowRefLink[];
   issues: string[];
   expandedSteps: FlowStepNode[];
@@ -280,6 +282,7 @@ function buildStepNodes(
       stepType: displayType,
       sourcePath,
       sourceKind,
+      assertions: step.assert ?? [],
       schemaRefs,
       issues,
       expandedSteps

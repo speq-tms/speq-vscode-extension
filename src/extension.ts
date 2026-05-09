@@ -255,7 +255,7 @@ export function activate(context: vscode.ExtensionContext): void {
         return;
       }
 
-      await openTestFlowWebview(root, testFile, output);
+      await openTestFlowWebview(context.extensionUri, root, testFile, output);
     }),
     vscode.commands.registerCommand("speq.runSuiteAtPath", async (uri?: vscode.Uri) => {
       const root = requireRoot();

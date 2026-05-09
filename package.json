@@ -171,7 +171,9 @@
   },
   "scripts": {
     "compile": "tsc -p . && npm run compile:webviews",
-    "compile:webviews": "esbuild src/webviews/studioHome/main.tsx --bundle --format=iife --platform=browser --outfile=dist/webviews/studioHome.js",
+    "compile:webviews": "npm run compile:webviews:studio-home && npm run compile:webviews:test-flow",
+    "compile:webviews:studio-home": "esbuild src/webviews/studioHome/main.tsx --bundle --format=iife --platform=browser --outfile=dist/webviews/studioHome.js",
+    "compile:webviews:test-flow": "esbuild src/webviews/testFlow/main.tsx --bundle --format=iife --platform=browser --outfile=dist/webviews/testFlow.js",
     "watch": "tsc -watch -p .",
     "check": "npm run compile"
   },

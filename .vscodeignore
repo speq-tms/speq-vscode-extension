@@ -2,7 +2,6 @@
 .github/**
 src/**
 docs/**
-node_modules/**
 tsconfig.json
 *.vsix
 **/*.map

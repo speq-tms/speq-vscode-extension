@@ -57,6 +57,12 @@ For explicit version bump at publish step:
 npx @vscode/vsce publish patch
 ```
 
+For manual build .vsix
+
+```bash
+npx @vscode/vsce package
+```
+
 After publish:
 
 - verify extension page in Marketplace;

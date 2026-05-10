@@ -2,7 +2,7 @@
   "name": "speq-vscode-extension",
   "displayName": "speq",
   "description": "VS Code extension for speq YAML-based tests",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "SPEQ-TEAM",
   "repository": {
     "type": "git",
@@ -28,7 +28,9 @@
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onLanguage:yaml",
+    "onCommand:speq.refreshStudioHome",
     "onCommand:speq.validateWorkspace",
     "onView:speqStudioHome"
   ],

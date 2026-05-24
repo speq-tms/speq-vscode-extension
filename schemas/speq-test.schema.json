@@ -27,7 +27,12 @@
     "variables": {
       "type": "object",
       "description": "Per-test variables available in templates.",
-      "additionalProperties": true
+      "additionalProperties": {
+        "oneOf": [
+          { "type": ["string", "number", "boolean", "null"] },
+          { "$ref": "#/definitions/genValue" }
+        ]
+      }
     },
     "imports": {
       "type": "array",
@@ -56,6 +61,65 @@
     }
   },
   "definitions": {
+    "genValue": {
+      "type": "object",
+      "description": "Data generator block.",
+      "required": ["gen"],
+      "additionalProperties": false,
+      "properties": {
+        "gen": { "$ref": "#/definitions/genConfig" }
+      }
+    },
+    "genConfig": {
+      "type": "object",
+      "description": "Generator configuration.",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["uuid", "date-time", "string", "int", "bool", "email", "name"],
+          "description": "Generator type."
+        },
+        "format": {
+          "type": "string",
+          "enum": ["rfc3339", "iso8601"],
+          "description": "Date-time format (only for type: date-time)."
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum string length (only for type: string)."
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum string length (only for type: string)."
+        },
+        "min": {
+          "type": "integer",
+          "description": "Minimum integer value (only for type: int)."
+        },
+        "max": {
+          "type": "integer",
+          "description": "Maximum integer value (only for type: int)."
+        }
+      }
+    },
+    "bodyValue": {
+      "description": "A body field: plain JSON scalar, a gen block, nested object, or array.",
+      "oneOf": [
+        { "type": ["string", "number", "boolean", "null"] },
+        { "$ref": "#/definitions/genValue" },
+        {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/bodyValue" }
+        },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/bodyValue" }
+        }
+      ]
+    },
     "importSpec": {
       "type": "object",
       "additionalProperties": false,
@@ -113,7 +177,9 @@
             "type": "string"
           }
         },
-        "body": {},
+        "body": {
+          "$ref": "#/definitions/bodyValue"
+        },
         "ref": {
           "type": "string",
           "description": "Reusable yaml file for use step."

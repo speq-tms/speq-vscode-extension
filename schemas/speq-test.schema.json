@@ -120,6 +120,24 @@
         }
       ]
     },
+    "bodyFromFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref"],
+      "description": "Reference to a fixture file used as the request body.",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to the fixture file relative to fixturesDir."
+        },
+        "overrides": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Key-value pairs that override fixture build values."
+        }
+      }
+    },
     "importSpec": {
       "type": "object",
       "additionalProperties": false,
@@ -179,6 +197,10 @@
         },
         "body": {
           "$ref": "#/definitions/bodyValue"
+        },
+        "bodyFromFixture": {
+          "$ref": "#/definitions/bodyFromFixture",
+          "description": "Use a fixture file as the request body."
         },
         "ref": {
           "type": "string",

@@ -220,6 +220,10 @@
           "items": {
             "$ref": "#/definitions/assertion"
           }
+        },
+        "condition": {
+          "$ref": "#/definitions/condition",
+          "description": "Condition that must be met; enables waiter polling until satisfied or timeout."
         }
       },
       "allOf": [
@@ -321,6 +325,48 @@
           }
         }
       ]
+    },
+    "condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "path", "equals"],
+      "description": "Condition evaluated against the response body. Enables waiter polling when combined with 'wait'.",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["jsonpath"],
+          "description": "Condition evaluation strategy. Currently only 'jsonpath' is supported."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "JSONPath expression evaluated against the response body (e.g. '$.state')."
+        },
+        "equals": {
+          "description": "Expected value at the JSONPath location."
+        },
+        "wait": {
+          "$ref": "#/definitions/waitConfig"
+        }
+      }
+    },
+    "waitConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["timeoutMs", "intervalMs"],
+      "description": "Polling configuration used with 'condition' to retry the request until the condition is met.",
+      "properties": {
+        "timeoutMs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum total wait time in milliseconds before the step fails with wait_timeout."
+        },
+        "intervalMs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Time between polling attempts in milliseconds."
+        }
+      }
     }
   }
 }
